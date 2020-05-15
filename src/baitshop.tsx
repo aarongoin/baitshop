@@ -8,16 +8,21 @@ interface Class<C, I> {
   new (props: I): C;
 }
 
-export type HookFn<P extends O = {}, S extends O = {}, A extends F = {}> = (props: P) => A & S;
-export type SharedHookFn<P extends O = {}, S extends O = {}, A extends F = {}> = [
+export type HookFn<P extends O = {}, S extends O = {}, A extends F = {}> = (
+  props: P
+) => A & S;
+export type SharedHookFn<
+  P extends O = {},
+  S extends O = {},
+  A extends F = {}
+> = [
   // SharedHookProvider
   (props: P & { children: React.ReactNode }) => React.ReactNode,
   // useSharedHookFn
-  () => S & A,
+  () => S & A
 ];
 
 export class Hook<P extends O = {}, S extends O = {}, A extends F = {}> {
-
   public props: P;
   public state: S;
   public bait: A & S;
@@ -33,31 +38,45 @@ export class Hook<P extends O = {}, S extends O = {}, A extends F = {}> {
   public setState(update: Partial<S>): void {
     if (this.hasStateChanged(update, this.state)) {
       this.state = { ...this.state, ...update };
-      this.bait = { ...this.bait, ...this.state }
+      this.bait = { ...this.bait, ...this.state };
       this.update();
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public initialState(props: P): S { return {} as S; }
-  public getActions(): A { return {} as A; }
-  public onMount(): void { return }
-  public onUnmount(): void { return }
-  public onRender(): void { return }
+  public initialState(props: P): S {
+    return {} as S;
+  }
+  public getActions(): A {
+    return {} as A;
+  }
+  public onMount(): void {
+    return;
+  }
+  public onUnmount(): void {
+    return;
+  }
+  public onRender(): void {
+    return;
+  }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public onChange(prevProps: P, newProps: P): void { return }
+  public onChange(prevProps: P, newProps: P): void {
+    return;
+  }
 
   public watchProps(): ReadonlyArray<keyof P> {
     return Object.keys(this.props);
   }
-  public havePropsChanged(prev: P, props: P, watch: ReadonlyArray<keyof P>): boolean {
+  public havePropsChanged(
+    prev: P,
+    props: P,
+    watch: ReadonlyArray<keyof P>
+  ): boolean {
     return watch.some(key => prev[key] !== props[key]);
   }
   public hasStateChanged(update: Partial<S>, state: S): boolean {
     return Object.keys(state).some(key => update[key] !== state[key]);
   }
-
-
 }
 
 interface CurrentRef<P extends O = {}, S extends O = {}, A extends F = {}> {
@@ -67,10 +86,11 @@ interface CurrentRef<P extends O = {}, S extends O = {}, A extends F = {}> {
   watch: ReadonlyArray<keyof P>;
 }
 
-export function createHook<P extends O = {}, S extends O = {}, A extends F = {}>(
-  HookClass: Class<Hook<P, S, A>, P>
-): HookFn<P, S, A> {
-
+export function createHook<
+  P extends O = {},
+  S extends O = {},
+  A extends F = {}
+>(HookClass: Class<Hook<P, S, A>, P>): HookFn<P, S, A> {
   // this `wrapper = { [name]: hookFn }` stuff looks a little nuts but
   // it ensures that the hook function is actually named after the store class
   const name = `use${HookClass.name || "Hook"}`;
@@ -86,7 +106,7 @@ export function createHook<P extends O = {}, S extends O = {}, A extends F = {}>
           instance,
           update,
           props: {} as P,
-          watch: instance.watchProps(),
+          watch: instance.watchProps()
         };
         instance.onMount();
       }
@@ -102,38 +122,44 @@ export function createHook<P extends O = {}, S extends O = {}, A extends F = {}>
       self.props = props;
 
       // call HookClass's onUnmount() for cleanup
-      React.useEffect(() => () => {
-        // turn update into noop
-        self.instance.update = noop;
-        self.instance.onUnmount();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
+      React.useEffect(
+        () => () => {
+          // turn update into noop
+          self.instance.update = noop;
+          self.instance.onUnmount();
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+      );
 
       self.instance.onRender();
       // restore update back into real update method
       self.instance.update = self.update;
       return self.instance.bait;
     }
-  }
+  };
 
   return wrapper[name];
 }
 
-export function createSharedHook<P extends O = {}, S extends O = {}, A extends F = {}>(
-  HookClass: Class<Hook<P, S, A>, P>
-): SharedHookFn<P, S, A> {
-
+export function createSharedHook<
+  P extends O = {},
+  S extends O = {},
+  A extends F = {}
+>(HookClass: Class<Hook<P, S, A>, P>): SharedHookFn<P, S, A> {
   const useSharedHook = createHook(HookClass);
   const sharedHookContext = React.createContext({} as A & S);
   const { Provider } = sharedHookContext;
 
   return [
     ({ children, ...props }) => {
-      const bait = useSharedHook(props as unknown as P);
-      return <Provider value={bait}>{children}</Provider>
+      const bait = useSharedHook((props as unknown) as P);
+      return <Provider value={bait}>{children}</Provider>;
     },
-    () => React.useContext(sharedHookContext),
+    () => React.useContext(sharedHookContext)
   ];
 }
 
-function noop() { return null; }
+function noop() {
+  return null;
+}

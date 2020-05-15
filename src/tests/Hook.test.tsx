@@ -1,5 +1,5 @@
 // import * as React from "react";
-import { render } from "@testing-library/react";
+// import { render } from "@testing-library/react";
 import { Hook } from "../baitshop";
 
 describe("Hook class", () => {
