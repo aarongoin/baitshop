@@ -3,6 +3,7 @@
 [![npm](https://img.shields.io/npm/v/baitshop/)](https://npm.com/package/baitshop)
 [![npm](https://img.shields.io/github/size/aarongoin/baitshop/dist/baitshop.js)](https://npm.com/baitshop)
 [![license](https://img.shields.io/github/license/aarongoin/baitshop)](https://github.com/aarongoin/baitshop/blob/master/LICENSE)
+
 [![build status](https://img.shields.io/github/workflow/status/aarongoin/baitshop/build)](https://github.com/aarongoin/baitshop/actions)
 [![issues](https://img.shields.io/github/issues/aarongoin/baitshop)](https://github.com/aarongoin/baitshop/issues)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
