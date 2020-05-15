@@ -1,0 +1,78 @@
+{
+  "name": "baitshop",
+  "version": "0.9.0",
+  "description": "Write your React hooks as JavaScript classes.",
+  "license": "MIT",
+  "main": "dist/baitshop.cjs.js",
+  "module": "dist/baitshop.esm.js",
+  "browser": "dist/baitshop.umd.js",
+  "types": "dist/baitshop.d.ts",
+  "scripts": {
+    "build": "rollup -c && tsc --jsx preserve -d --emitDeclarationOnly --declarationDir ./dist ./src/baitshop.tsx",
+    "dev": "rollup -c -w",
+    "lint": "eslint --fix ./src/baitshop.tsx",
+    "test": "jest ./tests",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,css,md,scss}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@rollup/plugin-node-resolve": "^7.1.3",
+    "@rollup/plugin-typescript": "^4.1.1",
+    "@testing-library/react": "^10.0.4",
+    "@types/jest": "^23.3.10",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^4.0.2",
+    "jest": "^23.6.0",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.19.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "rollup": "^2.10.0",
+    "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-dts": "^1.4.3",
+    "ts-jest": "^23.10.5",
+    "ts-node": "^7.0.1",
+    "tslib": "^1.9.3",
+    "typescript": "^3.9.2"
+  },
+  "peerDependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "verbose": true,
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.[jt]s?(x)",
+      "**/?(*.)(spec|test).[jt]s?(x)"
+    ]
+  }
+}
