@@ -24,7 +24,7 @@
     "build": "rollup -c && tsc --jsx preserve -d --emitDeclarationOnly --declarationDir ./dist ./src/baitshop.tsx",
     "dev": "rollup -c -w",
     "lint": "eslint --fix ./src/baitshop.tsx",
-    "test": "jest ./tests",
+    "test": "jest",
     "precommit": "lint-staged"
   },
   "lint-staged": {
