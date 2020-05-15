@@ -15,15 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: npm install
+      run: npm install
     - name: Run prettier
-    - run: npx prettier -c ./src/*
+      run: npx prettier -c ./src/*
     - name: Run linter
-    - run: npm run lint
+      run: npm run lint
   test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: npm install
+      run: npm install
     - name: Run tests
       run: npm run test
