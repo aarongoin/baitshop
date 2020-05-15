@@ -25,7 +25,7 @@
     "dev": "rollup -c -w",
     "lint": "eslint --fix ./src/baitshop.tsx",
     "test": "jest ./tests",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged && npm run build"
   },
   "lint-staged": {
     "*.{js,jsx,css,md,scss}": [
