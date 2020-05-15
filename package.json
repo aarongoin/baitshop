@@ -2,11 +2,24 @@
   "name": "baitshop",
   "version": "0.9.1",
   "description": "Write your React hooks as JavaScript classes.",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "main": "dist/baitshop.cjs.js",
   "module": "dist/baitshop.esm.js",
   "browser": "dist/baitshop.umd.js",
   "types": "dist/baitshop.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aarongoin/baitshop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aarongoin/github/issues"
+  },
+  "homepage": "https://github.com/aarongoin/github",
+  "keywords": [
+    "react",
+    "hooks",
+    "typescript"
+  ],
   "scripts": {
     "build": "rollup -c && tsc --jsx preserve -d --emitDeclarationOnly --declarationDir ./dist ./src/baitshop.tsx",
     "dev": "rollup -c -w",
