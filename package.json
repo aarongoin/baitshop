@@ -1,6 +1,6 @@
 {
   "name": "baitshop",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Write your React hooks as JavaScript classes.",
   "license": "BSD-3-Clause",
   "main": "dist/baitshop.cjs.js",
@@ -12,9 +12,9 @@
     "url": "git://github.com/aarongoin/baitshop.git"
   },
   "bugs": {
-    "url": "https://github.com/aarongoin/github/issues"
+    "url": "https://github.com/aarongoin/baitshop/issues"
   },
-  "homepage": "https://github.com/aarongoin/github",
+  "homepage": "https://github.com/aarongoin/baitshop",
   "keywords": [
     "react",
     "hooks",
