@@ -225,9 +225,9 @@ The createHook function is how you take a Hook class and create a function that 
 
 #### createSharedHook
 
-#### `createSharedHook(hookClass: Hook): { SharedHookProvider, useSharedHook }`
+#### `createSharedHook(hookClass: Hook): [ SharedHookProvider, useSharedHook ]`
 
-The createSharedHook function works just like how it says. It returns an object containing a React context provider for you to mount anywhere in your component tree, and a hook for your use in any descendant node under the context provider. Each instance of the useSharedHook will then return the `bait` object of the shared Hook class instance. Any props you want to use in the shared Hook must be passed into the `SharedHookProvider`, as props passed into the `useSharedHook` call will be ignored.
+The createSharedHook function works just like how it says. It returns an array with the first element as a React context provider for you to mount anywhere in your component tree, and the second as a hook for your use in any descendant node under the context provider. Each instance of the useSharedHook will then return the `bait` object of the shared Hook class instance. Any props you want to use in the shared Hook must be passed into the `SharedHookProvider`, as props passed into the `useSharedHook` call will be ignored.
 
 #
 
