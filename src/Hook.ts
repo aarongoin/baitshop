@@ -44,10 +44,7 @@ export class Hook<P extends O = {}, S extends O = {}, A extends F = {}> {
   public watchProps(): ReadonlyArray<keyof P> {
     return Object.keys(this.props);
   }
-  public havePropsChanged(
-    prev: P,
-    watch: ReadonlyArray<keyof P>
-  ): boolean {
+  public havePropsChanged(prev: P, watch: ReadonlyArray<keyof P>): boolean {
     return watch.some(key => prev[key] !== this.props[key]);
   }
   public hasStateChanged(update: Partial<S>): boolean {
