@@ -1,0 +1,230 @@
+import * as React from "react";
+import { render } from "@testing-library/react";
+import { act } from "react-dom/test-utils";
+import { Hook } from "../Hook";
+import * as shared from "../shared";
+import { createHook } from "../createHook";
+
+jest.spyOn(shared, "noop").mockImplementation(() => null);
+jest.useFakeTimers();
+
+describe("createHook", () => {
+  test("returns a hook named after the class passed in", () => {
+    expect(createHook(Hook).name).toBe("useHook");
+
+    class MySuperAwesomeHook extends Hook {}
+    expect(createHook(MySuperAwesomeHook).name).toBe("useMySuperAwesomeHook");
+  });
+
+  test("runs lifecycle methods in correct order and with correct arguments", () => {
+    const calls: string[] = [];
+    type Props = { foo: string };
+    class TestHook extends Hook<Props> {
+      constructor(props: Props) {
+        super(props);
+        calls.push(`constructor ${props.foo}`);
+      }
+      initialState() {
+        calls.push("initialState");
+        return super.initialState();
+      }
+      getActions() {
+        calls.push("getActions");
+        return super.getActions();
+      }
+      onMount() {
+        calls.push("onMount");
+        return super.onMount();
+      }
+      watchProps() {
+        calls.push("watchProps");
+        return super.watchProps();
+      }
+      havePropsChanged(prev: Props, watch: ReadonlyArray<keyof Props>) {
+        calls.push(
+          `havePropsChanged ${prev.foo}->${this.props.foo} [${watch}]`
+        );
+        return super.havePropsChanged(prev, watch);
+      }
+      onChange(prev: Props) {
+        calls.push(`onChange ${prev.foo}->${this.props.foo}`);
+        return super.onChange(prev);
+      }
+      onRender() {
+        calls.push("onRender");
+        return super.onRender();
+      }
+      onUnmount() {
+        calls.push("onUnmount");
+        return super.onUnmount();
+      }
+    }
+    const useTestHook = createHook(TestHook);
+
+    function HookTester(props: Props) {
+      useTestHook(props);
+      return null;
+    }
+
+    const { rerender } = render(
+      <div>
+        <HookTester foo="foo" />
+      </div>
+    );
+    rerender(
+      <div>
+        <HookTester foo="bar" />
+      </div>
+    );
+    rerender(<div></div>);
+
+    expect(calls).toStrictEqual([
+      "initialState",
+      "getActions",
+      "constructor foo",
+      "watchProps",
+      "onMount",
+      "havePropsChanged undefined->foo [foo]",
+      "onChange undefined->foo",
+      "onRender",
+      "havePropsChanged foo->bar [foo]",
+      "onChange foo->bar",
+      "onRender",
+      "onUnmount"
+    ]);
+  });
+
+  test("update() is a noop while inside hook body", () => {
+    jest.clearAllMocks();
+    type Props = { foo: string };
+    type State = { bar: string };
+    class TestHook extends Hook<Props, State> {
+      constructor(props: Props) {
+        super(props);
+        this.update();
+      }
+      onMount() {
+        this.update();
+      }
+      onRender() {
+        this.setState({ bar: "foo" });
+      }
+    }
+
+    const useTestHook = createHook(TestHook);
+
+    function HookTester(props: Props) {
+      useTestHook(props);
+      return null;
+    }
+
+    render(<HookTester foo="foo" />);
+    expect(shared.noop).toHaveBeenCalledTimes(3);
+  });
+
+  test("update() is a noop when hook is unmounted", () => {
+    jest.clearAllMocks();
+    type Props = { foo: string };
+    class TestHook extends Hook<Props> {
+      onUnmount() {
+        this.update();
+      }
+    }
+
+    const useTestHook = createHook(TestHook);
+
+    function HookTester(props: Props) {
+      useTestHook(props);
+      return null;
+    }
+
+    const { rerender } = render(
+      <div>
+        <HookTester foo="foo" />
+      </div>
+    );
+    rerender(<div></div>);
+
+    expect(shared.noop).toHaveBeenCalledTimes(1);
+  });
+
+  test("update() will trigger rerender of component", () => {
+    type Props = { foo: string };
+    class TestHook extends Hook<Props, Props> {
+      initialState() {
+        return { foo: "bar" };
+      }
+      onChange() {
+        setTimeout(() => this.setState({ foo: this.props.foo }), 0);
+
+        setTimeout(() => this.setState({ foo: "poo" }), 10);
+      }
+    }
+
+    const useTestHook = createHook(TestHook);
+    const trackRender = jest.fn();
+    function HookTester(props: Props) {
+      const { foo } = useTestHook(props);
+      trackRender(foo);
+      return null;
+    }
+
+    act(() => {
+      render(<HookTester foo="foo" />);
+      jest.advanceTimersByTime(11);
+    });
+    expect(trackRender.mock.calls).toStrictEqual([["bar"], ["foo"], ["poo"]]);
+  });
+
+  test("hook instance only returns bait object", () => {
+    type Props = { foo: string };
+    type Actions = { noop: () => void };
+    class TestHook extends Hook<Props, Props, Actions> {
+      initialState() {
+        return { foo: "bar" };
+      }
+      getActions() {
+        return { noop: shared.noop };
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    const useTestHook = createHook(TestHook);
+    const trackRender = jest.fn();
+    function HookTester(props: Props) {
+      const bait = useTestHook(props);
+      trackRender(bait);
+      return null;
+    }
+    render(<HookTester foo="bar" />);
+    expect(trackRender.mock.calls).toStrictEqual([
+      [{ foo: "bar", noop: shared.noop }]
+    ]);
+  });
+
+  test("can use other hooks safely inside onRender()", () => {
+    type Props = { foo: string };
+    class TestHook extends Hook<Props, Props> {
+      onRender() {
+        const { foo } = this.props;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        React.useEffect(() => {
+          this.setState({ foo: foo });
+        }, [foo]);
+      }
+    }
+
+    const useTestHook = createHook(TestHook);
+    const trackRender = jest.fn();
+    function HookTester(props: Props) {
+      const { foo } = useTestHook(props);
+      trackRender(foo);
+      return null;
+    }
+    act(() => {
+      render(<HookTester foo="bar" />);
+    });
+    expect(trackRender.mock.calls).toStrictEqual([[undefined], ["bar"]]);
+  });
+});
