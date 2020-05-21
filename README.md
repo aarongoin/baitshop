@@ -113,7 +113,7 @@ The core export is the `Hook` class which all your baitshop hooks should extend.
 
 In addition, there are two hook creation functions: `createHook()` and `createSharedHook()`. You will use one or both of these to create hooks which will use your custom Hooks.
 
-#
+---
 
 #### Hook class
 
@@ -121,7 +121,11 @@ The Hook is the core class you should extend and it forms the scaffolding from w
 
 Hooks use TypeScript generics to allow you to type out your props (P), state (S), and actions (A). All the generics are optional though and default to an empty object.
 
+#
+
 #### Hook class members:
+
+#
 
 ##### props
 
@@ -131,6 +135,8 @@ Props are the external inputs to your Hook and are like React props in that they
 
 **⚠️ Note:** It's best not to mutate props directly in your hook.
 
+#
+
 ##### state
 
 ##### `state: S`
@@ -139,13 +145,19 @@ State in the Hook class works very much like state in React.Component. It's an o
 
 **⚠️ Note:** It's best not to mutate state directly in your hook.
 
+#
+
 ##### bait
 
 ##### `bait: A & S`
 
 Generally `this.bait` is for consumers of your Hook, and is not really needed inside the Hook instance. Your Hook's `state` and `actions` are merged together into a single object which is returned from your hook function. More broadly: your bait is the public api for your hook.
 
+#
+
 #### Hook class methods:
+
+#
 
 ##### update
 
@@ -153,17 +165,23 @@ Generally `this.bait` is for consumers of your Hook, and is not really needed in
 
 The update method is much like React's forceUpdate in that it will trigger a rerender of the component, but it is different in that it does not trigger any methods directly in the Hook but instead triggers the external/downstream components to update. This method is called automatically anytime you set the state of the Hook using `setState`.
 
+#
+
 ##### setState
 
 ##### `setState(update: Partial<S>): void`
 
 This method works just like React's setState except that it does not accept a functional setter. But it does merge the update into the existing state using the spread operator.
 
+#
+
 ##### initialState
 
 ##### `initialState(): S`
 
 This method is only called once during the initialization phase of the Hook lifecycle and should return an object that contains the Hooks initial state. If this method is not defined, `state` will default to an empty object.
+
+#
 
 ##### getActions
 
@@ -173,17 +191,23 @@ This method lets you define the external, functional api for your Hook. It is ca
 
 **⚠️ Note:** Avoid destructuring props or state within the body of getActions as they will become stale since getActions only runs a single time during instantiation.
 
+#
+
 ##### onMount
 
 ##### `onMount(): void`
 
 If you need to hook into the component onMount event, then this method is the place to do it. If your Hook will do things reliant on the changing value of props, you should use the `onChange` method instead. Otherwise if you call a function in your `onMount`, and then call that same function in your `onChange` then it will result in that function being called twice during the initialization phase which is probably not what you want.
 
+#
+
 ##### onUnmount
 
 ##### `onUnmount(): void`
 
 The `onUnmount` method is your cleanup method which will be called once when the component the Hook is in unmounts. Note that prior to calling `onUnmount`, both the `update` and `setState` methods become noops that will do nothing when called so you don't have to worry about asynchronously calling setState on an unmounted component.
+
+#
 
 ##### onRender
 
@@ -193,11 +217,15 @@ This method is called unconditionally every update time the parent component ren
 
 **⚠️ Note:** If you're using the `react-hooks/rules-of-hooks` eslint rule you may have to suppress it when you directly use non-baitshop hooks here as the rule does not account for this use case.
 
+#
+
 ##### onChange
 
 ##### `onChange(prevProps: P): void`
 
 This method is called during any render in which the `havePropsChanged` method call returns true. If you haven't changed the default watchProps and `havePropsChanged` then this method will be called during the initialization phase of the hook and it's prevProps will be an empty object.
+
+#
 
 ##### watchProps
 
@@ -205,17 +233,25 @@ This method is called during any render in which the `havePropsChanged` method c
 
 This method is called once during the initialization phase of the Hook lifecycle and by default returns the keys of all props passed into the Hook. The keys returned from this method are passed into the `havePropsChanged` method which makes the ultimate decisision on if props have changed. Override this method if you want to narrow the scope of which props will trigger a call to `onChange`.
 
+#
+
 ##### havePropsChanged
 
 ##### `havePropsChanged(prevProps: P, watchlist: ReadonlyArray<keyof P>): boolean`
 
 This method is used to determine if the props have changed since the last time the Hook was rendered, and takes the old props along with the watchlist which is the list of prop names returned from the `watchProps` method. By default this method performs a shallow comparison between the old and new props using the keys in the watchlist, but can be overriden to support other strategies. This method is called in every render pass, including the initialization phase of the hook.
 
+#
+
 ##### hasStateChanged
 
 ##### `hasStateChanged(update: S): boolean`
 
 This is the method baitshop uses to determine if an a call to `setState(update)` is actually changing the state or not. By default this method performs a shallow comparison between the update and the existing state using the keys being updated, but can be overriden to support other strategies. This method is called anytime `setState` is called.
+
+---
+
+#### Hook-creating functions:
 
 #
 
@@ -233,7 +269,7 @@ The createHook function is how you take a Hook class and create a function that 
 
 The createSharedHook function works just like how it says. It returns an array with the first element as a React context provider for you to mount anywhere in your component tree, and the second as a hook for your use in any descendant node under the context provider. Each instance of the useSharedHook will then return the `bait` object of the shared Hook class instance. Any props you want to use in the shared Hook must be passed into the `SharedHookProvider`, as props passed into the `useSharedHook` call will be ignored.
 
-#
+---
 
 ### Hook Lifecycle
 
