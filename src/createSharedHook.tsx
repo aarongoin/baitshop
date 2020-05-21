@@ -9,7 +9,7 @@ export type SharedHookFn<
   A extends F = {}
 > = [
   // SharedHookProvider
-  (props: P & { children: React.ReactNode }) => React.ReactNode,
+  (props: P & { children: React.ReactNode }) => React.ReactElement,
   // useSharedHookFn
   () => S & A
 ];
