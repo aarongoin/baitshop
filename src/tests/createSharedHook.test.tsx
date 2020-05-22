@@ -18,28 +18,35 @@ class TestHook extends Hook<Props, State, Actions> {
   }
 }
 
+const [TestHookProvider, useSharedTestHook] = createSharedHook(TestHook);
+
+function Faker({ label }: { label: string }) {
+  const { value, setValue } = useSharedTestHook();
+  return (
+    <button type="button" onClick={() => setValue(label)}>
+      {label} {value}
+    </button>
+  );
+}
+
+class Parent extends React.Component {
+  shouldComponentUpdate(): boolean {
+    return false;
+  }
+  render(): React.ReactNode {
+    return <Faker label="FakerB" />;
+  }
+}
+
 describe("createSharedHook", () => {
   test("works like magic", () => {
-    const [TestHookProvider, useSharedTestHook] = createSharedHook(TestHook);
-
-    function Faker({ label }: { label: string }) {
-      const { value, setValue } = useSharedTestHook();
-      return (
-        <button type="button" onClick={() => setValue(label)}>
-          {label} {value}
-        </button>
-      );
-    }
-
     const { getByText } = render(
       <TestHookProvider initialValue="hello">
         <div>
           <Faker label="FakerA" />
         </div>
         <div>
-          <span>
-            <Faker label="FakerB" />
-          </span>
+          <Parent />
         </div>
       </TestHookProvider>
     );
