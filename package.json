@@ -1,6 +1,6 @@
 {
   "name": "baitshop",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Write your React hooks as JavaScript classes.",
   "license": "BSD-3-Clause",
   "main": "dist/index.cjs.js",
@@ -23,7 +23,7 @@
   "scripts": {
     "build": "rollup -c && cp ./src/index.d.ts ./dist/index.d.ts",
     "dev": "rollup -c -w",
-    "lint": "eslint --fix ./src/baitshop.tsx",
+    "lint": "eslint --fix ./src/index.tsx",
     "test": "jest",
     "precommit": "lint-staged"
   },

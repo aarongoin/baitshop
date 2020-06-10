@@ -1,7 +1,7 @@
 # baitshop
 
 [![npm](https://img.shields.io/npm/v/baitshop)](https://npmjs.com/package/baitshop)
-[![npm](https://img.shields.io/github/size/aarongoin/baitshop/dist/baitshop.esm.js)](https://npm.com/baitshop)
+[![npm](https://img.shields.io/github/size/aarongoin/baitshop/dist/index.esm.js)](https://npm.com/baitshop)
 [![license](https://img.shields.io/github/license/aarongoin/baitshop)](https://github.com/aarongoin/baitshop/blob/master/LICENSE)
 
 [![build status](https://img.shields.io/github/workflow/status/aarongoin/baitshop/tests)](https://github.com/aarongoin/baitshop/actions)
