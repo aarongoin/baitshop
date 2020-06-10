@@ -8,7 +8,7 @@ type State = { value: string };
 type Actions = { setValue: (v: string) => void };
 
 class TestHook extends Hook<Props, State, Actions> {
-  initialState(): State {
+  getInitialState(): State {
     return { value: this.props.initialValue || "hello" };
   }
   getActions() {

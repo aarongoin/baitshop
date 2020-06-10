@@ -1,8 +1,8 @@
 import * as React from "react";
 import { render } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
-import { Hook } from "../Hook";
 import * as shared from "../shared";
+import { Hook } from "../Hook";
 import { createHook } from "../createHook";
 
 jest.spyOn(shared, "noop").mockImplementation(() => null);
@@ -24,9 +24,9 @@ describe("createHook", () => {
         super(props);
         calls.push(`constructor ${props.foo}`);
       }
-      initialState() {
-        calls.push("initialState");
-        return super.initialState();
+      getInitialState() {
+        calls.push("getInitialState");
+        return super.getInitialState();
       }
       getActions() {
         calls.push("getActions");
@@ -36,15 +36,9 @@ describe("createHook", () => {
         calls.push("onMount");
         return super.onMount();
       }
-      watchProps() {
-        calls.push("watchProps");
-        return super.watchProps();
-      }
-      havePropsChanged(prev: Props, watch: ReadonlyArray<keyof Props>) {
-        calls.push(
-          `havePropsChanged ${prev.foo}->${this.props.foo} [${watch}]`
-        );
-        return super.havePropsChanged(prev, watch);
+      didPropsChange(prev: Props) {
+        calls.push(`didPropsChange ${prev.foo}->${this.props.foo}`);
+        return super.didPropsChange(prev);
       }
       onChange(prev: Props) {
         calls.push(`onChange ${prev.foo}->${this.props.foo}`);
@@ -79,15 +73,14 @@ describe("createHook", () => {
     rerender(<div></div>);
 
     expect(calls).toStrictEqual([
-      "initialState",
+      "getInitialState",
       "getActions",
       "constructor foo",
-      "watchProps",
       "onMount",
-      "havePropsChanged undefined->foo [foo]",
+      "didPropsChange undefined->foo",
       "onChange undefined->foo",
       "onRender",
-      "havePropsChanged foo->bar [foo]",
+      "didPropsChange foo->bar",
       "onChange foo->bar",
       "onRender",
       "onUnmount"
@@ -151,7 +144,7 @@ describe("createHook", () => {
   test("update() will trigger rerender of component", () => {
     type Props = { foo: string };
     class TestHook extends Hook<Props, Props> {
-      initialState() {
+      getInitialState() {
         return { foo: "bar" };
       }
       onChange() {
@@ -180,7 +173,7 @@ describe("createHook", () => {
     type Props = { foo: string };
     type Actions = { noop: () => void };
     class TestHook extends Hook<Props, Props, Actions> {
-      initialState() {
+      getInitialState() {
         return { foo: "bar" };
       }
       getActions() {

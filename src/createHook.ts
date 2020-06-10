@@ -1,22 +1,11 @@
 import * as React from "react";
-import { Hook } from "./Hook";
-import { O, F, Class, noop } from "./shared";
-
-export type HookFn<P extends O = {}, S extends O = {}, A extends F = {}> = (
-  props: P
-) => A & S;
-
-interface CurrentRef<P extends O = {}, S extends O = {}, A extends F = {}> {
-  instance: Hook<P, S, A>;
-  update: () => void;
-  props: P;
-  watch: ReadonlyArray<keyof P>;
-}
+import { noop } from "./shared";
+import { HookFn, CurrentRef, Hook, Class } from "./index.d";
 
 export function createHook<
-  P extends O = {},
-  S extends O = {},
-  A extends F = {}
+  P extends Record<string, unknown> = {},
+  S extends Record<string, unknown> = {},
+  A extends { [K in keyof A]: Function } = {}
 >(HookClass: Class<Hook<P, S, A>, P>): HookFn<P, S, A> {
   // this `wrapper = { [name]: hookFn }` stuff looks a little nuts but
   // it ensures that the hook function is actually named after the store class
@@ -32,8 +21,7 @@ export function createHook<
         ref.current = {
           instance,
           update,
-          props: {} as P,
-          watch: instance.watchProps()
+          props: {} as P
         };
         instance.onMount();
       }
@@ -44,7 +32,7 @@ export function createHook<
 
       // watch for changing props and call HookClass's onChange() with previous props
       self.instance.props = props;
-      if (self.instance.havePropsChanged(self.props, self.watch))
+      if (self.instance.didPropsChange(self.props))
         self.instance.onChange(self.props);
       self.props = props;
 

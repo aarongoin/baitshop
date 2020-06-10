@@ -1,23 +1,11 @@
 import * as React from "react";
-import { Hook } from "./Hook";
 import { createHook } from "./createHook";
-import { O, F, Class } from "./shared";
-
-export type SharedHookFn<
-  P extends O = {},
-  S extends O = {},
-  A extends F = {}
-> = [
-  // SharedHookProvider
-  (props: P & { children: React.ReactNode }) => React.ReactElement,
-  // useSharedHookFn
-  () => S & A
-];
+import { Class, Hook, SharedHookFn } from "./index.d";
 
 export function createSharedHook<
-  P extends O = {},
-  S extends O = {},
-  A extends F = {}
+  P extends Record<string, unknown> = {},
+  S extends Record<string, unknown> = {},
+  A extends { [K in keyof A]: Function } = {}
 >(HookClass: Class<Hook<P, S, A>, P>): SharedHookFn<P, S, A> {
   const useSharedHook = createHook(HookClass);
   const sharedHookContext = React.createContext({} as A & S);

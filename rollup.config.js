@@ -1,13 +1,10 @@
-import commonjs from "@rollup/plugin-commonjs";
-import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import cleanup from "rollup-plugin-cleanup";
-import dts from "rollup-plugin-dts";
 import pkg from "./package.json";
 
 export default [
   {
-    input: "src/baitshop.tsx",
+    input: "src/index.tsx",
     external: ["react"],
     output: {
       name: "baitshop",
@@ -18,8 +15,6 @@ export default [
       }
     },
     plugins: [
-      resolve(),
-      commonjs(),
       typescript(),
       cleanup({
         comments: "none",
@@ -28,11 +23,10 @@ export default [
     ]
   },
   {
-    input: "src/baitshop.tsx",
+    input: "src/index.tsx",
     external: ["react"],
     plugins: [
       typescript(),
-      dts(),
       cleanup({
         comments: "none",
         extensions: ["js", "ts", "jsx", "tsx"]

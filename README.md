@@ -24,7 +24,7 @@ Here's what using baitshop looks like when creating a basic fetch hook in JavaSc
 import { Hook, createHook } from "baitshop"
 
 class Fetcher extends Hook {
-  initialState() {
+  getInitialState() {
     return {
       stage: "loading",
       response: null,
@@ -175,9 +175,9 @@ This method works just like React's setState except that it does not accept a fu
 
 #
 
-##### initialState
+##### getInitialState
 
-##### `initialState(): S`
+##### `getInitialState(): S`
 
 This method is only called once during the initialization phase of the Hook lifecycle and should return an object that contains the Hooks initial state. If this method is not defined, `state` will default to an empty object.
 
@@ -188,8 +188,6 @@ This method is only called once during the initialization phase of the Hook life
 ##### `getActions(): A`
 
 This method lets you define the external, functional api for your Hook. It is called only once during the initialization phase of the Hook lifecycle, and should return an object who's keys map to functions (either defined on the Hook itself or arrow functions). Baitshop does **not** auto-bind these actions for you, so it's up to you to ensure your action's have the appropriate `this` binding.
-
-**⚠️ Note:** Avoid destructuring props or state within the body of getActions as they will become stale since getActions only runs a single time during instantiation.
 
 #
 
@@ -223,29 +221,21 @@ This method is called unconditionally every update time the parent component ren
 
 ##### `onChange(prevProps: P): void`
 
-This method is called during any render in which the `havePropsChanged` method call returns true. If you haven't changed the default watchProps and `havePropsChanged` then this method will be called during the initialization phase of the hook and it's prevProps will be an empty object.
+This method is called during any render in which the `didPropsChange` method call returns true. If you haven't changed the default `didPropsChange` then this method will be called during the initialization phase of the hook and it's prevProps will be an empty object.
 
 #
 
-##### watchProps
+##### didPropsChange
 
-##### `watchProps(): ReadonlyArray<keyof P>`
+##### `didPropsChange(prevProps: P): boolean`
 
-This method is called once during the initialization phase of the Hook lifecycle and by default returns the keys of all props passed into the Hook. The keys returned from this method are passed into the `havePropsChanged` method which makes the ultimate decisision on if props have changed. Override this method if you want to narrow the scope of which props will trigger a call to `onChange`.
-
-#
-
-##### havePropsChanged
-
-##### `havePropsChanged(prevProps: P, watchlist: ReadonlyArray<keyof P>): boolean`
-
-This method is used to determine if the props have changed since the last time the Hook was rendered, and takes the old props along with the watchlist which is the list of prop names returned from the `watchProps` method. By default this method performs a shallow comparison between the old and new props using the keys in the watchlist, but can be overriden to support other strategies. This method is called in every render pass, including the initialization phase of the hook.
+This method is used to determine if the props have changed since the last time the Hook was rendered. By default this method performs a shallow comparison between the old and new props, but can be overriden to support other strategies. This method is called in every render pass, including the initialization phase of the hook.
 
 #
 
-##### hasStateChanged
+##### didStateChange
 
-##### `hasStateChanged(update: S): boolean`
+##### `didStateChange(update: S): boolean`
 
 This is the method baitshop uses to determine if an a call to `setState(update)` is actually changing the state or not. By default this method performs a shallow comparison between the update and the existing state using the keys being updated, but can be overriden to support other strategies. This method is called anytime `setState` is called.
 
@@ -277,7 +267,7 @@ The createSharedHook function works just like how it says. It returns an array w
 
 1. set [`this.props`](#props)
 
-2. call [`initialState()`](#initialState)
+2. call [`getInitialState()`](#getInitialState)
 
 3. set [`this.state`](#state)
 
@@ -289,19 +279,17 @@ The createSharedHook function works just like how it says. It returns an array w
 
 7. call [`onMount()`](#onMount)
 
-8. call [`watchProps()`](#watchProps)
-
-9. call [`havePropsChanged(prevProps, watchlist)`](#havePropsChanged)
+8. call [`didPropsChange(prevProps)`](#didPropsChange)
 
    - call [`onChange(prevProps)`](#onChange)
 
-10. call [`onRender()`](#onRender)
+9. call [`onRender()`](#onRender)
 
 #### Post-instantiation renders
 
 1. set [`this.props`](#props)
 
-2. call [`havePropsChanged(prevProps, watchlist)`](#havePropsChanged)
+2. call [`didPropsChange(prevProps)`](#didPropsChange)
 
    - call [`onChange(prevProps)`](#onChange)
 
@@ -315,9 +303,11 @@ The createSharedHook function works just like how it says. It returns an array w
 
 #### When setState() is triggered:
 
-1. [`hasStateChanged(update)`](#hasStateChanged)
+1. [`didStateChange(update)`](#didStateChange)
 
    - set [`this.state`](#state)
+
+   - call [`getActions()`](#getActions)
 
    - set [`this.bait`](#bait)
 
@@ -333,7 +323,7 @@ Here are some "recipes" to help you customize your hook to get the behavior you 
 
 ```typescript
 class Custom extends Hook<P, S, A> {
-  havePropsChanged(): boolean {
+  didPropsChange(): boolean {
     return false;
   }
 }
@@ -358,7 +348,7 @@ class Custom extends Hook<P, S, A> {
 ```Typescript
 class Custom extends Hook<P, S, A> {
 
-  initialState(): S {
+  getInitialState(): S {
     return {
       yourState: "here"
       somethingElse: this.props.bar;
@@ -432,8 +422,8 @@ class Custom extends Hook<P, S, A> {
 ```Typescript
 class Custom extends Hook<P, S, A> {
 
-  watchProps(): ReadonlyArray<keyof P> {
-    return ["id", "first_name"];
+  didPropsChange(prevProps: P): boolean {
+    return this.props.user.id !== prevProps.user.id;
   }
 
   onChange(prevProps: P): void { ... }

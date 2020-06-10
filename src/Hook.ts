@@ -1,6 +1,11 @@
-import { O, F, noop } from "./shared";
+import { noop } from "./shared";
+import { Hook as HookClass } from "./index.d";
 
-export class Hook<P extends O = {}, S extends O = {}, A extends F = {}> {
+export class Hook<
+  P extends Record<string, unknown> = {},
+  S extends Record<string, unknown> = {},
+  A extends { [K in keyof A]: Function } = {}
+> implements HookClass<P, S, A> {
   public props: P;
   public state: S;
   public bait: A & S;
@@ -9,19 +14,19 @@ export class Hook<P extends O = {}, S extends O = {}, A extends F = {}> {
 
   constructor(props: P) {
     this.props = props;
-    this.state = this.initialState();
+    this.state = this.getInitialState();
     this.bait = { ...this.getActions(), ...this.state };
   }
 
   public setState(update: Partial<S>): void {
-    if (this.hasStateChanged(update)) {
+    if (this.didStateChange(update)) {
       this.state = { ...this.state, ...update };
-      this.bait = { ...this.bait, ...this.state };
+      this.bait = { ...this.getActions(), ...this.state };
       this.update();
     }
   }
 
-  public initialState(): S {
+  public getInitialState(): S {
     return {} as S;
   }
   public getActions(): A {
@@ -41,13 +46,10 @@ export class Hook<P extends O = {}, S extends O = {}, A extends F = {}> {
     return;
   }
 
-  public watchProps(): ReadonlyArray<keyof P> {
-    return Object.keys(this.props);
+  public didPropsChange(prev: P): boolean {
+    return Object.keys(this.props).some(key => prev[key] !== this.props[key]);
   }
-  public havePropsChanged(prev: P, watch: ReadonlyArray<keyof P>): boolean {
-    return watch.some(key => prev[key] !== this.props[key]);
-  }
-  public hasStateChanged(update: Partial<S>): boolean {
+  public didStateChange(update: Partial<S>): boolean {
     return Object.keys(update).some(key => update[key] !== this.state[key]);
   }
 }

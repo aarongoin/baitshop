@@ -1,11 +1,8 @@
-import {
-  useState,
-  useRef,
-  useEffect,
-  createContext,
-  createElement,
-  useContext
-} from "react";
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var React = require("react");
 
 function noop() {
   return null;
@@ -15,17 +12,20 @@ class Hook {
   constructor(props) {
     this.update = noop;
     this.props = props;
-    this.state = this.initialState();
+    this.state = this.getInitialState();
     this.bait = Object.assign(Object.assign({}, this.getActions()), this.state);
   }
   setState(update) {
-    if (this.hasStateChanged(update)) {
+    if (this.didStateChange(update)) {
       this.state = Object.assign(Object.assign({}, this.state), update);
-      this.bait = Object.assign(Object.assign({}, this.bait), this.state);
+      this.bait = Object.assign(
+        Object.assign({}, this.getActions()),
+        this.state
+      );
       this.update();
     }
   }
-  initialState() {
+  getInitialState() {
     return {};
   }
   getActions() {
@@ -43,13 +43,10 @@ class Hook {
   onChange(prevProps) {
     return;
   }
-  watchProps() {
-    return Object.keys(this.props);
+  didPropsChange(prev) {
+    return Object.keys(this.props).some(key => prev[key] !== this.props[key]);
   }
-  havePropsChanged(prev, watch) {
-    return watch.some(key => prev[key] !== this.props[key]);
-  }
-  hasStateChanged(update) {
+  didStateChange(update) {
     return Object.keys(update).some(key => update[key] !== this.state[key]);
   }
 }
@@ -58,26 +55,25 @@ function createHook(HookClass) {
   const name = `use${HookClass.name || "Hook"}`;
   const wrapper = {
     [name]: (props = {}) => {
-      const [, forceUpdate] = useState(Number.MIN_VALUE);
-      const ref = useRef(null);
+      const [, forceUpdate] = React.useState(Number.MIN_VALUE);
+      const ref = React.useRef(null);
       if (!ref.current) {
         const instance = new HookClass(props);
         const update = () => forceUpdate(k => k + Number.EPSILON);
         ref.current = {
           instance,
           update,
-          props: {},
-          watch: instance.watchProps()
+          props: {}
         };
         instance.onMount();
       }
       const self = ref.current;
       self.instance.update = noop;
       self.instance.props = props;
-      if (self.instance.havePropsChanged(self.props, self.watch))
+      if (self.instance.didPropsChange(self.props))
         self.instance.onChange(self.props);
       self.props = props;
-      useEffect(
+      React.useEffect(
         () => () => {
           self.instance.update = noop;
           self.instance.onUnmount();
@@ -110,17 +106,19 @@ function __rest(s, e) {
 
 function createSharedHook(HookClass) {
   const useSharedHook = createHook(HookClass);
-  const sharedHookContext = createContext({});
+  const sharedHookContext = React.createContext({});
   const { Provider } = sharedHookContext;
   return [
     _a => {
       var { children } = _a,
         props = __rest(_a, ["children"]);
       const bait = useSharedHook(props);
-      return createElement(Provider, { value: bait }, children);
+      return React.createElement(Provider, { value: bait }, children);
     },
-    () => useContext(sharedHookContext)
+    () => React.useContext(sharedHookContext)
   ];
 }
 
-export { Hook, createHook, createSharedHook };
+exports.Hook = Hook;
+exports.createHook = createHook;
+exports.createSharedHook = createSharedHook;

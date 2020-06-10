@@ -11,12 +11,12 @@ type TestHookState = {
   qty: number;
   nested: { value: string };
 };
-type TestHookActions = {
+interface TestHookActions {
   testAction: () => string;
 };
 
 class TestHook extends Hook<TestHookProps, TestHookState, TestHookActions> {
-  initialState() {
+  getInitialState() {
     return {
       hello: "world",
       qty: 2000,
@@ -24,7 +24,7 @@ class TestHook extends Hook<TestHookProps, TestHookState, TestHookActions> {
     };
   }
   getActions() {
-    return { testAction: () => "works!" };
+    return { testAction: () => this.state.hello };
   }
 }
 const testProps = { foo: "bar", goodbye: { text: "cruel world" } };
@@ -43,11 +43,11 @@ describe("Hook class", () => {
 
     expect(instance.bait.hello).toBe("world");
     expect(instance.bait.testAction).toBeInstanceOf(Function);
-    expect(instance.bait.testAction()).toBe("works!");
+    expect(instance.bait.testAction()).toBe("world");
   });
 
-  test("default initialState() - is empty object", () => {
-    expect(new Hook(testProps).initialState()).toStrictEqual({});
+  test("default getInitialState() - is empty object", () => {
+    expect(new Hook(testProps).getInitialState()).toStrictEqual({});
   });
 
   test("default getActions() - is empty object", () => {
@@ -67,69 +67,47 @@ describe("Hook class", () => {
   });
 
   test("default onChange() - is noop", () => {
-    expect(
-      new Hook(testProps).onChange(testProps)
-    ).toBeUndefined();
+    expect(new Hook(testProps).onChange(testProps)).toBeUndefined();
   });
 
-  test("default watchProps() - uses all prop keys", () => {
-    const instance = new TestHook(testProps);
-
-    expect(instance.watchProps()).toStrictEqual(["foo", "goodbye"]);
-  });
-
-  test("default havePropsChanged() - does shallow comparison", () => {
+  test("default didPropsChange() - does shallow comparison using prop keys", () => {
     const instance = new TestHook({ ...testProps });
 
-    expect(
-      instance.havePropsChanged(testProps, ["foo", "goodbye"])
-    ).toBe(false);
+    expect(instance.didPropsChange(testProps)).toBe(false);
 
     testProps.goodbye.text = "bug free code";
-    expect(
-      instance.havePropsChanged(testProps, ["foo", "goodbye"])
-    ).toBe(false);
+    expect(instance.didPropsChange(testProps)).toBe(false);
 
     testProps.foo = "bizzle";
-    expect(
-      instance.havePropsChanged(testProps, ["foo", "goodbye"])
-    ).toBe(true);
-
-    expect(instance.havePropsChanged(testProps, [])).toBe(
-      false
-    );
+    expect(instance.didPropsChange(testProps)).toBe(true);
 
     testProps.foo = "bar";
     testProps.goodbye = { text: "cruel world" };
-    expect(
-      instance.havePropsChanged(testProps, ["foo", "goodbye"])
-    ).toBe(true);
+    expect(instance.didPropsChange(testProps)).toBe(true);
   });
 
-  test("default hasStateChanged() - does shallow comparison using keys from update", () => {
+  test("default didStateChange() - does shallow comparison using keys from update", () => {
     const instance = new TestHook(testProps);
 
-    expect(instance.hasStateChanged({})).toBe(false);
+    expect(instance.didStateChange({})).toBe(false);
 
-    expect(instance.hasStateChanged({ qty: 300 })).toBe(true);
+    expect(instance.didStateChange({ qty: 300 })).toBe(true);
 
-    expect(
-      instance.hasStateChanged({ ...instance.state })
-    ).toBe(false);
+    expect(instance.didStateChange({ ...instance.state })).toBe(false);
 
     const testState = { ...instance.state };
     testState.nested.value = "mutated!";
-    expect(instance.hasStateChanged(testState)).toBe(false);
+    expect(instance.didStateChange(testState)).toBe(false);
 
     testState.nested = { value: "something something" };
-    expect(instance.hasStateChanged(testState)).toBe(true);
+    expect(instance.didStateChange(testState)).toBe(true);
   });
 
   describe("setState()", () => {
     test("is noop if nothing changed", () => {
       const instance = new TestHook({ ...testProps });
       instance.update = jest.fn();
-      instance.hasStateChanged = jest.fn(() => false);
+      instance.didStateChange = jest.fn(() => false);
       instance.setState({ hello: "clarice" });
       expect(instance.state).toStrictEqual({
         hello: "world",
@@ -143,9 +121,8 @@ describe("Hook class", () => {
     test("updates state, bait, and triggers update if state changed", () => {
       const instance = new TestHook({ ...testProps });
       instance.update = jest.fn();
-      instance.hasStateChanged = jest.fn(() => true);
-
-      const { testAction } = instance.bait;
+      instance.didStateChange = jest.fn(() => true);
+      expect(instance.bait.testAction()).toBe("world");
 
       instance.setState({ hello: "there" });
 
@@ -155,8 +132,7 @@ describe("Hook class", () => {
         nested: { value: "something something" }
       });
       expect(instance.bait.hello).toBe("there");
-      // actions should be identical
-      expect(instance.bait.testAction).toBe(testAction);
+      expect(instance.bait.testAction()).toBe("there");
       expect(instance.update).toHaveBeenCalledTimes(1);
     });
   });
