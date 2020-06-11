@@ -213,7 +213,7 @@ The `onUnmount` method is your cleanup method which will be called once when the
 
 This method is called unconditionally every update time the parent component renders. This means if you're composing with other React hooks or even other baitshop Hooks: you'll need to call them inside this method to avoid breaking the rule of hooks and causing bugs in your app.
 
-**⚠️ Note:** If you're using the `react-hooks/rules-of-hooks` eslint rule you may have to suppress it when you directly use non-baitshop hooks here as the rule does not account for this use case.
+**⚠️ Note:** If you're using the `react-hooks/rules-of-hooks` eslint rule: consider using the baitshop version [eslint-plugin-baitshop-hooks](https://github.com/aarongoin/eslint-plugin-baitshop-hooks) instead. React's `rules-of-hooks` rule does not account for hooks written as classes and will error should you use a hook in the onRender method. The baitshop version of the rule lints for all the same rules of hooks and is mostly a copy of react's with a few necessary tweaks.
 
 #
 
