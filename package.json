@@ -1,6 +1,6 @@
 {
   "name": "baitshop",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "description": "Write your React hooks as JavaScript classes.",
   "license": "BSD-3-Clause",
   "main": "dist/index.cjs.js",

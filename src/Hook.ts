@@ -21,7 +21,7 @@ export class Hook<
   public setState(update: Partial<S>): void {
     if (this.didStateChange(update)) {
       this.state = { ...this.state, ...update };
-      this.bait = { ...this.getActions(), ...this.state };
+      this.bait = { ...this.bait, ...this.state };
       this.update();
     }
   }

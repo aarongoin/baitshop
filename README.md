@@ -187,7 +187,7 @@ This method is only called once during the initialization phase of the Hook life
 
 ##### `getActions(): A`
 
-This method lets you define the external, functional api for your Hook. It is called only once during the initialization phase of the Hook lifecycle, and should return an object who's keys map to functions (either defined on the Hook itself or arrow functions). Baitshop does **not** auto-bind these actions for you, so it's up to you to ensure your action's have the appropriate `this` binding.
+This method lets you define the external, functional api for your Hook. It is called only _once_ during the initialization phase of the Hook lifecycle, and should return an object who's keys map to functions (either defined on the Hook itself or arrow functions). Baitshop does **not** auto-bind these actions for you, so it's up to you to ensure your action's have the appropriate `this` binding.
 
 #
 
@@ -306,8 +306,6 @@ The createSharedHook function works just like how it says. It returns an array w
 1. [`didStateChange(update)`](#didStateChange)
 
    - set [`this.state`](#state)
-
-   - call [`getActions()`](#getActions)
 
    - set [`this.bait`](#bait)
 
