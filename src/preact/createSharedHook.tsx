@@ -1,6 +1,7 @@
-import * as React from "react";
+import * as React from "preact";
+import { useContext } from "preact/hooks";
 import { createHook } from "./createHook";
-import { Class, Hook, SharedHookFn } from "./index.d";
+import { Class, Hook, SharedHookFn } from "../shared/types";
 
 export function createSharedHook<
   P extends Record<string, unknown> = {},
@@ -16,6 +17,6 @@ export function createSharedHook<
       const bait = useSharedHook((props as unknown) as P);
       return <Provider value={bait}>{children}</Provider>;
     },
-    () => React.useContext(sharedHookContext)
+    () => useContext(sharedHookContext)
   ];
 }

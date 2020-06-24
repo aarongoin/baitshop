@@ -1,7 +1,7 @@
 # baitshop
 
 [![npm](https://img.shields.io/npm/v/baitshop)](https://npmjs.com/package/baitshop)
-[![npm](https://img.shields.io/github/size/aarongoin/baitshop/dist/index.esm.js)](https://npm.com/baitshop)
+[![npm](https://img.shields.io/github/size/aarongoin/baitshop/react/index.esm.js)](https://npm.com/baitshop)
 [![license](https://img.shields.io/github/license/aarongoin/baitshop)](https://github.com/aarongoin/baitshop/blob/master/LICENSE)
 
 [![build status](https://img.shields.io/github/workflow/status/aarongoin/baitshop/tests)](https://github.com/aarongoin/baitshop/actions)
@@ -10,7 +10,7 @@
 
 #
 
-Write your React hooks as JavaScript classes.
+Write your React (or Preact) hooks as JavaScript classes.
 
 "Say what????"
 
@@ -32,6 +32,7 @@ class Fetcher extends Hook {
     }
   }
   onChange() {
+    // refetch if any prop changes (in this case, if the url changes)
     this.doFetch();
   }
   doFetch() {
@@ -39,18 +40,24 @@ class Fetcher extends Hook {
     this.setState({ stage: "loading", response: null, error: null });
     fetch(url)
       .then((response, error) => {
-        // prevent setting state if the url has changed!
+        // prevent setting state if the url has changed while we were fetching
         if (url != this.props.url) return;
         if (error) this.setState({ stage: "error", response: null, error });
         else this.setState({ stage: "ready", response, error: null });
       });
+  }
+  getActions() {
+    // allow users to refetch manually--no memoization needed!
+    return {
+      refetch: () => this.doFetch()
+    };
   }
 }
 
 const useFetcher = createHook(Fetcher);
 
 function CuteDoggo({ id }) {
-  const { stage, response, error } = useFetcher({ url: `/pics/of/dogs/${id}` });
+  const { stage, response, error, refetch } = useFetcher({ url: `/pics/of/dogs/${id}` });
 
   ...
 }
@@ -81,7 +88,7 @@ Follow these instructions to get baitshop setup in your project. And then scroll
 
 ### Prerequisites
 
-First of all, baitshop is written with React Hooks and that's it. So react is a peer dependency that you'll need to use baitshop. Or if you're a particularly preact-y that's cool too.
+Baitshop is written with both React and Preact hooks -- so it can natively support one or the other. Each version is built seperately and neither libraries are bundled with Baitshop so the choice is entirely yours which version you want to use. Both React and Preact are marked as peer dependencies, but you'll only need to have the one you use installed.
 
 #
 
@@ -100,6 +107,32 @@ yarn install baitshop
 ```
 
 That's it. Nice work! ✋You've successfully installed baitshop.
+
+#
+
+### Use with React
+
+React is the default version supported by Baitshop, so you can import it like so:
+
+```javascript
+import { Hook, createHook } from "baitshop";
+```
+
+Or you can be more specific and import directly from the React build:
+
+```javascript
+import { Hook, createHook } from "baitshop/react";
+```
+
+#
+
+### Use with Preact
+
+To import and use Baitshop with Preact, you'll need to import the Preact build:
+
+```javascript
+import { Hook, createHook } from "baitshop/preact";
+```
 
 ---
 

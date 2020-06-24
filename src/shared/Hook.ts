@@ -1,5 +1,5 @@
-import { noop } from "./shared";
-import { Hook as HookClass } from "./index.d";
+import { noop } from "./utils";
+import { Hook as HookClass } from "./types";
 
 export class Hook<
   P extends Record<string, unknown> = {},

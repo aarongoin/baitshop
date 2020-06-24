@@ -4,10 +4,7 @@ module.exports = {
     jsx: true,
     useJSXTextNode: true
   },
-  ignorePatterns: [
-    "dist/*",
-    "node_modules/*"
-  ],
+  ignorePatterns: ["react/*", "preact/*", "node_modules/*"],
   extends: [
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
@@ -15,11 +12,7 @@ module.exports = {
     "prettier/@typescript-eslint",
     "plugin:react/recommended"
   ],
-  plugins: [
-    "@typescript-eslint",
-    "react",
-    "react-hooks"
-  ],
+  plugins: ["@typescript-eslint", "react", "react-hooks", "baitshop-hooks"],
   settings: {
     react: {
       createClass: "createReactClass",
@@ -29,7 +22,8 @@ module.exports = {
   },
   rules: {
     "@typescript-eslint/explicit-function-return-type": "off",
-    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/rules-of-hooks": "off",
+    "baitshop-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "@typescript-eslint/no-use-before-define": "off"
   }

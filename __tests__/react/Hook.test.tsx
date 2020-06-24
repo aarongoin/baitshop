@@ -1,6 +1,4 @@
-// import * as React from "react";
-// import { render } from "@testing-library/react";
-import { Hook } from "../Hook";
+import { Hook } from "../../react";
 
 type TestHookProps = {
   foo: string;

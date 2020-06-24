@@ -1,6 +1,6 @@
-import * as React from "react";
-import { noop } from "./shared";
-import { HookFn, CurrentRef, Hook, Class } from "./index.d";
+import * as preact from "preact/hooks";
+import { noop } from "../shared/utils";
+import { HookFn, CurrentRef, Hook, Class } from "../shared/types";
 
 export function createHook<
   P extends Record<string, unknown> = {},
@@ -12,8 +12,8 @@ export function createHook<
   const name = `use${HookClass.name || "Hook"}`;
   const wrapper = {
     [name]: (props: P = {} as P) => {
-      const [, forceUpdate] = React.useState(Number.MIN_VALUE);
-      const ref = React.useRef<CurrentRef<P, S, A> | null>(null);
+      const [, forceUpdate] = preact.useState(Number.MIN_VALUE);
+      const ref = preact.useRef<CurrentRef<P, S, A> | null>(null);
       // initialize the HookClass and call it's onMount() method
       if (!ref.current) {
         const instance = new HookClass(props);
@@ -37,7 +37,7 @@ export function createHook<
       self.props = props;
 
       // call HookClass's onUnmount() for cleanup
-      React.useEffect(
+      preact.useEffect(
         () => () => {
           // turn update into noop
           self.instance.update = noop;

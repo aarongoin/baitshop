@@ -1,7 +1,6 @@
-import * as React from "react";
-import { render, fireEvent } from "@testing-library/react";
-import { Hook } from "../Hook";
-import { createSharedHook } from "../createSharedHook";
+import * as React from "preact";
+import { render, fireEvent } from "@testing-library/preact";
+import { Hook, createSharedHook } from "../../preact";
 
 type Props = { initialValue?: string };
 type State = { value: string };
@@ -33,7 +32,7 @@ class Parent extends React.Component {
   shouldComponentUpdate(): boolean {
     return false;
   }
-  render(): React.ReactNode {
+  render(): React.VNode {
     return <Faker label="FakerB" />;
   }
 }
@@ -41,6 +40,7 @@ class Parent extends React.Component {
 describe("createSharedHook", () => {
   test("works like magic", () => {
     const { getByText } = render(
+      // @ts-expect-error
       <TestHookProvider initialValue="hello">
         <div>
           <Faker label="FakerA" />
